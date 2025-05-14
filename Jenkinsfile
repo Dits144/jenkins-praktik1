@@ -5,16 +5,28 @@ pipeline {
         }
     }
 
+    environment {
+        VENV_DIR = 'venv'
+    }
+
     stages {
-        stage('Install Dependencies') {
+        stage('Setup Environment & Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh '''
+                    python3 -m venv $VENV_DIR
+                    . $VENV_DIR/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest test_app.py'
+                sh '''
+                    . $VENV_DIR/bin/activate
+                    pytest test_app.py
+                '''
             }
         }
 
