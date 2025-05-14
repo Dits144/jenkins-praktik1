@@ -39,34 +39,24 @@ pipeline {
             }
             steps {
                 echo "Deploying from branch ${env.BRANCH_NAME}"
-                script {
-                    def payload = [
-                        content: "Build SUCCESS on ${env.BRANCH_NAME}"
-                    ]
-                    httpRequest(
-                        httpMode: 'POST',
-                        contentType: 'APPLICATION_JSON',
-                        requestBody: groovy.json.JsonOutput.toJson(payload),
-                        url: 'https://discordapp.com/api/webhooks/1372109455017119784/zLGKZUT-vq55TlO7XkE4EP4VVuMNX4tDcim5jUm3ntsgHYVcIsRcOJt2U1zL4lH8xDD8'
-                    )
-                }
+                sh """
+                    curl -H "Content-Type: application/json" \
+                        -X POST \
+                        -d '{\"content\":\"Build SUCCESS on branch ${env.BRANCH_NAME}\"}' \
+                        https://discordapp.com/api/webhooks/1372109455017119784/zLGKZUT-vq55TlO7XkE4EP4VVuMNX4tDcim5jUm3ntsgHYVcIsRcOJt2U1zL4lH8xDD8
+                """
             }
             post {
                 success {
                     echo 'Deployment Successful'
                 }
                 failure {
-                    script {
-                        def payload = [
-                            content: "Build FAILED on branch ${env.BRANCH_NAME}. View details at ${env.BUILD_URL}"
-                        ]
-                        httpRequest(
-                            httpMode: 'POST',
-                            contentType: 'APPLICATION_JSON',
-                            requestBody: groovy.json.JsonOutput.toJson(payload),
-                            url: 'https://discordapp.com/api/webhooks/1372109455017119784/zLGKZUT-vq55TlO7XkE4EP4VVuMNX4tDcim5jUm3ntsgHYVcIsRcOJt2U1zL4lH8xDD8'
-                        )
-                    }
+                    sh """
+                        curl -H "Content-Type: application/json" \
+                            -X POST \
+                            -d '{\"content\":\"Build FAILED on branch ${env.BRANCH_NAME}. View details at ${env.BUILD_URL}\"}' \
+                            https://discordapp.com/api/webhooks/1372109455017119784/zLGKZUT-vq55TlO7XkE4EP4VVuMNX4tDcim5jUm3ntsgHYVcIsRcOJt2U1zL4lH8xDD8
+                    """
                 }
             }
         }
